@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS products (code varchar(255), price int(11));
