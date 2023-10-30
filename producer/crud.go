@@ -1,6 +1,8 @@
 package main
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 func CreateProduct(db *gorm.DB, code string, price uint) {
 	db.Create(&Product{Code: code, Price: price})
