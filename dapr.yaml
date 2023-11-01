@@ -1,0 +1,11 @@
+version: 1
+common:
+  resourcesPath: ./components
+apps:
+  - appID: pub
+    appDirPath: ./publisher/
+    appPort: 6005
+    command: ["go", "run", "."]
+  - appID: sub
+    appDirPath: ./subscriber/
+    command: ["go", "run", "."]

@@ -6,7 +6,7 @@ import (
 
 func CreateProduct(db *gorm.DB, code string, price uint) Product {
 	p := Product{Code: code, Price: price}
-	db.Create(p)
+	db.Create(&p)
 
 	return p
 }
@@ -14,6 +14,14 @@ func CreateProduct(db *gorm.DB, code string, price uint) Product {
 func GetProduct(db *gorm.DB, id uint) (*Product, error) {
 	var product Product
 	if err := db.First(&product, id).Error; err != nil {
+		return nil, err
+	}
+	return &product, nil
+}
+
+func GetProductByCode(db *gorm.DB, code string) (*Product, error) {
+	var product Product
+	if err := db.Where("code = ?", code).First(&product).Error; err != nil {
 		return nil, err
 	}
 	return &product, nil
