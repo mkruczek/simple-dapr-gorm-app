@@ -6,9 +6,12 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"log"
+	"os"
+	"os/signal"
 )
 
 const (
+	configPath = "../port.config"
 	defaultDsn = "postgres://postgres:secret@localhost:%s?sslmode=disable"
 )
 
@@ -34,13 +37,29 @@ func main() {
 	}
 
 	port, _ := postgresContainer.MappedPort(ctx, "5432")
-
-	fmt.Printf("PORT: %s\n", port)
+	mustSavePortToSharedFile(port.Port())
+	defer os.Remove(configPath)
 
 	dsn := fmt.Sprintf(defaultDsn, port.Port())
+	fmt.Printf("DSN: %s\n", dsn)
 
-	fmt.Printf("DSN: %s", dsn)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	fmt.Println("awaiting signal...")
+	s := <-c
+	fmt.Println("Got signal:", s)
+}
 
-	for {
+// func will save port to file whare other application cane read it
+func mustSavePortToSharedFile(port string) {
+	file, err := os.Create(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(port)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

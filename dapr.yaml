@@ -9,3 +9,6 @@ apps:
   - appID: sub
     appDirPath: ./subscriber/
     command: ["go", "run", "."]
+  - appID: inMemoryDB
+    appDirPath: ./inMemoryDB/
+    command: [ "go", "run", "." ]

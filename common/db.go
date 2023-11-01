@@ -5,14 +5,18 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	"os"
+	"time"
 )
 
 const (
-	port = 49154
-	dsn  = "postgres://postgres:secret@localhost:%d?sslmode=disable"
+	configPath = "../port.config"
+	dsn        = "postgres://postgres:secret@localhost:%s?sslmode=disable"
 )
 
 func InitializeDatabase() *gorm.DB {
+
+	port := mustGetPortFromPortConfig()
 
 	cfg := fmt.Sprintf(dsn, port)
 
@@ -22,4 +26,14 @@ func InitializeDatabase() *gorm.DB {
 	}
 	db.AutoMigrate(&Product{})
 	return db
+}
+
+func mustGetPortFromPortConfig() string {
+	for {
+		port, err := os.ReadFile(configPath)
+		if err == nil {
+			return string(port)
+		}
+		time.Sleep(time.Second)
+	}
 }
