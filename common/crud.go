@@ -1,11 +1,14 @@
-package main
+package common
 
 import (
 	"gorm.io/gorm"
 )
 
-func CreateProduct(db *gorm.DB, code string, price uint) {
-	db.Create(&Product{Code: code, Price: price})
+func CreateProduct(db *gorm.DB, code string, price uint) Product {
+	p := Product{Code: code, Price: price}
+	db.Create(p)
+
+	return p
 }
 
 func GetProduct(db *gorm.DB, id uint) (*Product, error) {

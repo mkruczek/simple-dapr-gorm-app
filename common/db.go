@@ -1,15 +1,35 @@
-package main
+package common
 
 import (
 	"context"
 	"github.com/testcontainers/testcontainers-go"
-	"testing"
-
-	_ "github.com/lib/pq"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"log"
 )
 
-func TestGORMWithPostgresContainer(t *testing.T) {
+const DefaultDsn = "default"
+
+func InitializeDatabase(dsn string) *gorm.DB {
+
+	var err error
+
+	if dsn == "" || dsn == DefaultDsn {
+		if dsn, err = testPostgresDSN(); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("Nie można połączyć się z bazą danych")
+	}
+	db.AutoMigrate(&Product{})
+	return db
+}
+
+func testPostgresDSN() (string, error) {
 	ctx := context.Background()
 
 	req := testcontainers.ContainerRequest{
@@ -24,22 +44,11 @@ func TestGORMWithPostgresContainer(t *testing.T) {
 		Started:          true,
 	})
 	if err != nil {
-		t.Fatalf("could not start container: %s", err)
+		return "", err
 	}
-	defer postgresContainer.Terminate(ctx)
 
 	host, _ := postgresContainer.Host(ctx)
 	port, _ := postgresContainer.MappedPort(ctx, "5432")
-	dsn := "postgres://postgres:secret@" + host + ":" + port.Port() + "?sslmode=disable"
 
-	// Użyj GORM do połączenia z bazą danych
-	db := InitializeDatabase(dsn)
-
-	// Wykonaj operacje CRUD za pomocą GORM
-	// Na przykład:
-	CreateProduct(db, "ABC123", 100)
-	product, err := GetProduct(db, 1)
-	if err != nil || product.Code != "ABC123" {
-		t.Fatalf("unexpected result from GetProduct: %v, error: %v", product, err)
-	}
+	return "postgres://postgres:secret@" + host + ":" + port.Port() + "?sslmode=disable", nil
 }
