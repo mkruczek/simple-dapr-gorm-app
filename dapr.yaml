@@ -12,3 +12,15 @@ apps:
   - appID: inMemoryDB
     appDirPath: ./inMemoryDB/
     command: [ "go", "run", "." ]
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: productservice-binding
+  namespace: default
+spec:
+  type: bindings.http
+  version: v1
+  metadata:
+    - name: url
+      value: http://localhost:3000/products

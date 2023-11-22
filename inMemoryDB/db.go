@@ -50,7 +50,7 @@ func main() {
 	fmt.Println("Got signal:", s)
 }
 
-// func will save port to file whare other application cane read it
+// func will save port to file where other application cane read it
 func mustSavePortToSharedFile(port string) {
 	file, err := os.Create(configPath)
 	if err != nil {
