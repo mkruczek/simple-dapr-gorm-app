@@ -24,7 +24,7 @@ func InitializeDatabase() *gorm.DB {
 	if err != nil {
 		log.Fatal("cannot connect to database: ", err)
 	}
-	db.AutoMigrate(&Product{})
+	//db.AutoMigrate(&Product{})
 	return db
 }
 

@@ -2,25 +2,28 @@ version: 1
 common:
   resourcesPath: ./components
 apps:
+  - appID: inMemoryDB
+    appDirPath: ./inMemoryDB/
+    command: ["go", "run", "." ]
+  - appID: sub
+    appDirPath: ./subscriber/
+    command: ["go", "run", "." ]
   - appID: pub
     appDirPath: ./publisher/
     appPort: 6005
-    command: ["go", "run", "."]
-  - appID: sub
-    appDirPath: ./subscriber/
-    command: ["go", "run", "."]
-  - appID: inMemoryDB
-    appDirPath: ./inMemoryDB/
-    command: [ "go", "run", "." ]
+    command: ["go", "run", "." ]
+  - appID: auditProduct
+    appDirPath: ./auditProduct/
+    command: ["go", "run", "." ]
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: productservice-binding
+  name: create-audit-product
   namespace: default
 spec:
   type: bindings.http
   version: v1
   metadata:
     - name: url
-      value: http://localhost:3000/products
+      value: http://localhost:3000/audit/products

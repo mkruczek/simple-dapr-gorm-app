@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"gorm.io/gorm"
 	"net/http"
-	"simple-gorm-app/common"
 )
 
-// CreateProduct - responsible for creating product
-func CreateProduct(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
+func CreateAuditProductHandler(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method != http.MethodPost {
@@ -16,14 +14,14 @@ func CreateProduct(db *gorm.DB) func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var payload common.Product
+		var payload AuditProduct
 		err := json.NewDecoder(r.Body).Decode(&payload)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		result := common.CreateProduct(db, payload.Code, payload.Price)
+		result := CreateAuditProduct(db, payload.Code, payload.Price)
 
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(result)

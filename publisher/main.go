@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	dapr "github.com/dapr/go-sdk/client"
+	"gorm.io/gorm"
 	"log"
 	"simple-gorm-app/common"
 	"time"
@@ -19,6 +20,8 @@ func main() {
 	ctx := context.Background()
 	db := common.InitializeDatabase()
 
+	initProductTable(db)
+
 	client, err := dapr.NewClient()
 	defer client.Close()
 	if err != nil {
@@ -32,4 +35,8 @@ func main() {
 		}
 		time.Sleep(5000)
 	}
+}
+
+func initProductTable(db *gorm.DB) {
+	db.AutoMigrate(&common.Product{})
 }

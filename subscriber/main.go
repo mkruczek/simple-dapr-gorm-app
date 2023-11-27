@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	daprCommon "github.com/dapr/go-sdk/service/common"
 	daprd "github.com/dapr/go-sdk/service/http"
@@ -50,8 +52,42 @@ func eventHandler(db *gorm.DB) func(ctx context.Context, e *daprCommon.TopicEven
 			return false, err
 		}
 
+		err = sendAuditNote(ctx, err, product)
+		if err != nil {
+			log.Printf("error sending audit note: %v", err)
+			return false, err
+		}
+
 		log.Printf("Product: %s", product)
 
 		return false, nil
 	}
+}
+
+func sendAuditNote(ctx context.Context, err error, product *common.Product) error {
+
+	const daprBindingService = "create-audit-product"
+
+	data, err := json.Marshal(product)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", "http://localhost:3500/v1.0/invoke/"+daprBindingService, bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("failed to invoke " + daprBindingService)
+	}
+	return nil
 }
