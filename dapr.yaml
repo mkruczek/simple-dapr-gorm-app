@@ -26,4 +26,4 @@ spec:
   version: v1
   metadata:
     - name: url
-      value: http://localhost:3000/audit/products
+      value: http://localhost:3000/

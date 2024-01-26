@@ -33,10 +33,13 @@ func main() {
 		if err := client.PublishEvent(ctx, pubSubName, topicName, []byte(product.Code)); err != nil {
 			log.Fatal(err)
 		}
-		time.Sleep(5000)
+		time.Sleep(100 * time.Millisecond)
 	}
 }
 
 func initProductTable(db *gorm.DB) {
-	db.AutoMigrate(&common.Product{})
+	err := db.AutoMigrate(&common.Product{})
+	if err != nil {
+		log.Fatal("cannot migrate product table: ", err)
+	}
 }

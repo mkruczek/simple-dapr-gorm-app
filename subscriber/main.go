@@ -52,7 +52,7 @@ func eventHandler(db *gorm.DB) func(ctx context.Context, e *daprCommon.TopicEven
 			return false, err
 		}
 
-		err = sendAuditNote(ctx, err, product)
+		err = sendAuditNote(ctx, product)
 		if err != nil {
 			log.Printf("error sending audit note: %v", err)
 			return false, err
@@ -64,7 +64,35 @@ func eventHandler(db *gorm.DB) func(ctx context.Context, e *daprCommon.TopicEven
 	}
 }
 
-func sendAuditNote(ctx context.Context, err error, product *common.Product) error {
+//func sendAuditNote(ctx context.Context, product *common.Product) error {
+//	const daprBindingService = "create-audit-product"
+//
+//	// Utwórz klienta Dapr
+//	daprClient, err := client.NewClient()
+//	if err != nil {
+//		return err
+//	}
+//	defer daprClient.Close()
+//
+//	// Marshal produktu do JSON
+//	data, err := json.Marshal(product)
+//	if err != nil {
+//		return err
+//	}
+//
+//	// Wywołanie bindingu Dapr
+//	if _, err := daprClient.InvokeBinding(ctx, &client.InvokeBindingRequest{
+//		Name:      daprBindingService,
+//		Operation: "create",
+//		Data:      data,
+//	}); err != nil {
+//		return errors.New("failed to invoke " + daprBindingService + ": " + err.Error())
+//	}
+//
+//	return nil
+//}
+
+func sendAuditNote(ctx context.Context, product *common.Product) error {
 
 	const daprBindingService = "create-audit-product"
 
@@ -73,11 +101,13 @@ func sendAuditNote(ctx context.Context, err error, product *common.Product) erro
 		return err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", "http://localhost:3500/v1.0/invoke/"+daprBindingService, bytes.NewBuffer(data))
+	req, err := http.NewRequestWithContext(ctx, "POST", "http://localhost:35001/audit/products", bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "Dapr")
+	req.Header.Set("dapr-app-id", "create-audit-product")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)

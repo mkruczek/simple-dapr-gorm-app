@@ -1,28 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"gorm.io/gorm"
-	"time"
 )
-
-type AuditProduct struct {
-	gorm.Model
-	Code      string
-	Price     uint
-	StoreDate time.Time
-}
-
-func (ap *AuditProduct) String() string {
-	return fmt.Sprintf("AuditProduct{ID: %d, Code: %s, Price: %d}", ap.ID, ap.Code, ap.Price)
-}
-
-func CreateAuditProduct(db *gorm.DB, code string, price uint) AuditProduct {
-	p := AuditProduct{Code: code, Price: price, StoreDate: time.Now()}
-	db.Create(&p)
-
-	return p
-}
 
 func GetAuditProduct(db *gorm.DB, id uint) (*AuditProduct, error) {
 	var AuditProduct AuditProduct
